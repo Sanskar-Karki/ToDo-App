@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from "axios"
 
 const Home = () => {
 
   const [tab, setTab] = useState(1)
   const [task, setTask] = useState(null)
+  const [todos, setTodos] = useState(null)
 
   function handleTabs(tab) {
     setTab(tab)
@@ -13,8 +14,18 @@ const Home = () => {
 
   function handleAddTask(e) {
     e.preventDefault()
-    axios.post('http://localhost:5000/new-task', { task })
+    axios.post('http://localhost:5000/new-task', { task }).then(res => {
+      setTodos(res.data)
+      setTask('')
+
+    })
   }
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/read-tasks').then(res => {
+      setTodos(res.data)
+    })
+  }, [])
 
   return (
     <>
@@ -41,18 +52,22 @@ const Home = () => {
           </div>
 
 
-          <div className='flex justify-between bg-white p-3 min-w-80 mt-3 rounded-md'>
-            <div>
-              <p className='text-lg- font-semibold'>Buy rice</p>
-              <p className='text-xs text-gray-600'> 10/12/2024 10:30</p>
-              <p className='text-sm text-gray'>Status : Active</p>
-            </div>
-            <div className='flex flex-col text-sm justify-start items-start '>
-              <button className='text-blue-600 cursor-pointer'>Edit</button>
-              <button className='text-red-500 cursor-pointer'>Delete</button>
-              <button className='text-green-600 cursor-pointer'>Completed</button>
-            </div>
-          </div>
+          {
+            todos?.map(todo => (
+              <div key={todo.id} className='flex justify-between bg-white p-3 min-w-80 mt-3 rounded-md'>
+                <div>
+                  <p className='text-lg- font-semibold'>{todo.task}</p>
+                  <p className='text-xs text-gray-600'> {new Date(todo.createdAt).toLocaleDateString()}</p>
+                  <p className='text-sm text-gray'>Status : Acitve</p>
+                </div>
+                <div className='flex flex-col text-sm justify-start items-start '>
+                  <button className='text-blue-600 cursor-pointer'>Edit</button>
+                  <button className='text-red-500 cursor-pointer'>Delete</button>
+                  <button className='text-green-600 cursor-pointer'>Completed</button>
+                </div>
+              </div>
+            ))
+          }
 
 
         </div>

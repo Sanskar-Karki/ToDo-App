@@ -23,12 +23,29 @@ db.connect((err) => {
 
 app.post('/new-task', (req, res) => {
   console.log(req.body)
-  const q = "insert into todos(task,createdAt) values (?,?)"
-  db.query(q, [req.body.task, new Date()], (err, result) => {
+  const q = "insert into todos(task,createdAt,status) values (?,?,?)"
+  db.query(q, [req.body.task, new Date(), 'active'], (err, result) => {
     if (err) {
       console.log("Failed to store task!!!")
     } else {
-      console.log("todo saves ")
+      console.log("todo saved ")
+      const updatedTasks = 'select * from todos'
+      db.query(updatedTasks, (err, newList) => {
+        res.send(newList)
+      })
+    }
+  })
+})
+
+app.get('/read-tasks', (req, res) => {
+  const q = 'select *from todos'
+  db.query(q, (err, result) => {
+    if (err) {
+      console.log("Failed to read tasks")
+    } else {
+      console.log("Got tasks successfully from db")
+      res.send(result)
+
     }
   })
 })
