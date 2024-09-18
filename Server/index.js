@@ -38,13 +38,64 @@ app.post('/new-task', (req, res) => {
 })
 
 app.get('/read-tasks', (req, res) => {
-  const q = 'select *from todos'
+  const q = 'select * from todos'
   db.query(q, (err, result) => {
     if (err) {
       console.log("Failed to read tasks")
     } else {
       console.log("Got tasks successfully from db")
       res.send(result)
+
+    }
+  })
+})
+
+app.post('/update-task', (req, res) => {
+  console.log(req.body)
+  const q = 'update todos set task = ? where id = ?'
+  db.query(q, [req.body.task, req.body.updateId], (err, result) => {
+    if (err) {
+      console.log('Failed to update')
+    }
+    else {
+      console.log('Updated')
+      db.query('select * from todos', (err, result) => {
+        if (err) {
+          console.log(err)
+        }
+        else {
+          res.send(result)
+        }
+      })
+    }
+  })
+})
+
+app.post('/delete-task', (req, res) => {
+  const q = 'delete from todos where id = ?';
+  db.query(q, [req.body.id], (err, result) => {
+    if (err) {
+      console.log("Failed to delete")
+    }
+    else {
+      console.log('Deleted successfully')
+      db.query('select * from todos', (err, newList) => {
+        res.send(newList)
+      })
+    }
+
+  })
+
+})
+
+app.post('/complete-task', (req, res) => {
+  const q = 'update todos set status= ? where id =?'
+  db.query(q, ['Completed', req.body.id], (err, result) => {
+    if (result) {
+      db.query("select * from todos", (e, newList) => {
+        res.send(newList)
+      })
+    } else {
 
     }
   })
